@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Development — Your AI Front Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#3d4e8a;
+    --navy-dark:#33417a;
+    --navy-active:#ffffff;
+    --bg:#f2f5fa;
+    --card:#ffffff;
+    --border:#e4e9f2;
+    --text:#2b3350;
+    --muted:#7a86a5;
+    --blue:#2f6fed;
+    --blue-soft:#e8f0fe;
+    --green:#1eab63;
+    --green-soft:#e6f7ee;
+    --orange:#e8930c;
+    --orange-soft:#fdf3e3;
+    --red:#e23c3c;
+    --red-soft:#fdeaea;
+    --purple:#7b3ff2;
+    --violet:#b06ef0;
+    --radius:14px;
+    --shadow:0 1px 3px rgba(43,51,80,.06);
+    font-size:15px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Nunito',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    display:flex;
+    min-height:100vh;
+  }
+  button{font-family:inherit;cursor:pointer}
+
+  /* ============ SIDEBAR ============ */
+  .sidebar{
+    width:250px;flex-shrink:0;
+    background:var(--navy);
+    color:#fff;
+    display:flex;flex-direction:column;
+    padding:22px 14px;
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .logo{display:flex;align-items:center;gap:10px;padding:0 8px 26px}
+  .logo-badge{width:40px;height:40px;border-radius:50%;background:#fff;color:var(--navy);display:grid;place-items:center;font-weight:900;font-size:.9rem}
+  .logo-text{font-weight:800;line-height:1.15;font-size:1.02rem}
+  .nav a{
+    display:flex;align-items:center;gap:12px;
+    color:rgba(255,255,255,.88);text-decoration:none;
+    padding:11px 12px;border-radius:10px;
+    font-weight:700;font-size:.94rem;margin-bottom:2px;
+  }
+  .nav a svg{width:19px;height:19px;flex-shrink:0;opacity:.9}
+  .nav a:hover{background:rgba(255,255,255,.1)}
+  .nav a.active{background:#fff;color:var(--navy)}
+  .nav .spacer{height:26px}
+  .ver{margin-top:auto;text-align:center;color:rgba(255,255,255,.55);font-size:.82rem;font-weight:700;padding-top:20px}
+
+  /* ============ MAIN ============ */
+  .main{flex:1;padding:20px 26px 40px;min-width:0}
+  .topbar{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:16px}
+  .avatar-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:24px;padding:6px 14px 6px 6px;font-weight:800}
+  .avatar-chip .av{width:30px;height:30px;border-radius:50%;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-weight:900;font-size:.8rem}
+
+  /* ============ FILTERS ============ */
+  .filters{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:16px 18px;margin-bottom:18px;
+    display:grid;grid-template-columns:1.2fr 1.2fr 1fr 1fr auto auto;gap:14px;align-items:end;
+  }
+  .field label{display:block;font-weight:800;font-size:.86rem;margin-bottom:7px}
+  .field select,.field input{
+    width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;
+    font-family:inherit;font-size:.92rem;color:var(--text);background:#fff;font-weight:600;
+  }
+  .btn{
+    border:none;border-radius:10px;padding:11px 20px;font-weight:800;font-size:.92rem;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn svg{width:16px;height:16px}
+  .btn-primary{background:var(--blue);color:#fff}
+  .btn-primary:hover{background:#255fd4}
+  .btn-ghost{background:#fff;border:1px solid var(--border);color:var(--text)}
+  .btn-ghost:hover{background:var(--bg)}
+  .btn-green{background:var(--green);color:#fff}
+  .btn-green:hover{background:#178a4f}
+
+  /* ============ KPI CARDS ============ */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;position:relative}
+  .kpi h3{font-size:.98rem;font-weight:800;margin-bottom:10px}
+  .kpi .icon{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center}
+  .kpi .icon svg{width:18px;height:18px}
+  .kpi .big{font-size:2.1rem;font-weight:900;line-height:1}
+  .kpi .big small{font-size:1rem;color:var(--muted);font-weight:800}
+  .kpi p{color:var(--muted);font-size:.85rem;font-weight:700;margin-top:8px}
+  .c-orange{color:var(--orange)} .bg-orange{background:var(--orange-soft);color:var(--orange)}
+  .c-blue{color:var(--blue)} .bg-blue{background:var(--blue-soft);color:var(--blue)}
+  .c-green{color:var(--green)} .bg-green{background:var(--green-soft);color:var(--green)}
+  .c-red{color:var(--red)} .bg-red{background:var(--red-soft);color:var(--red)}
+
+  /* ============ SCORE ROW ============ */
+  .score-row{display:grid;grid-template-columns:0.9fr 1.4fr;gap:16px;margin-bottom:18px}
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px}
+  .panel h2{font-size:1.05rem;font-weight:800;margin-bottom:6px}
+  .panel-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .panel-head .hint{color:var(--muted);font-size:.82rem;font-weight:700}
+
+  .donut-wrap{display:flex;flex-direction:column;align-items:center;gap:18px;padding:10px 0}
+  .donut{position:relative;width:200px;height:200px}
+  .donut svg{transform:rotate(-90deg)}
+  .donut .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .donut .center b{font-size:2.4rem;font-weight:900}
+  .donut .center span{color:var(--muted);font-weight:700;font-size:.85rem}
+  .legend{display:flex;gap:20px;font-weight:800;font-size:.9rem}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .dot{width:10px;height:10px;border-radius:50%}
+
+  .criterion{margin-bottom:18px}
+  .criterion:last-child{margin-bottom:2px}
+  .criterion .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-weight:800}
+  .criterion .row .name{display:flex;align-items:center;gap:9px;font-size:.95rem}
+  .criterion .track{height:9px;background:#eef1f7;border-radius:6px;overflow:hidden}
+  .criterion .fill{height:100%;border-radius:6px}
+
+  /* ============ CALLS TABLE ============ */
+  .table-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .table-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+  .table-head h2{font-size:1.05rem;font-weight:800}
+  table{width:100%;border-collapse:collapse}
+  thead th{
+    text-align:left;font-size:.8rem;letter-spacing:.04em;color:var(--muted);
+    font-weight:800;padding:12px 16px;background:#f8fafd;border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  tbody td{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:.92rem;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:#fafbfe}
+  .score-pill{display:inline-block;padding:5px 13px;border-radius:16px;color:#fff;font-weight:900;font-size:.85rem}
+  .pill-green{background:var(--green)} .pill-orange{background:var(--orange)} .pill-red{background:var(--red)}
+  .mini-btn{
+    display:inline-flex;align-items:center;gap:6px;
+    background:#fff;border:1px solid var(--border);border-radius:9px;
+    padding:7px 12px;font-weight:800;font-size:.84rem;color:var(--text);
+  }
+  .mini-btn:hover{background:var(--bg)}
+  .mini-btn svg{width:14px;height:14px}
+  .mini-btn.accent{border-color:#c9dbff;color:var(--blue);background:var(--blue-soft)}
+  .mini-btn.accent:hover{background:#dbe8fd}
+  .icon-btn{
+    width:38px;height:36px;display:inline-grid;place-items:center;
+    background:#faf7f0;border:1px solid #e8e2d4;border-radius:10px;
+    color:#4a5370;transition:.15s;
+  }
+  .icon-btn:hover{background:#f1ecdf;color:var(--text)}
+  .icon-btn.active{background:var(--blue-soft);border-color:#c9dbff;color:var(--blue)}
+  .icon-btn svg{width:17px;height:17px}
+  .review-cell{display:flex;gap:8px}
+
+  /* audio player */
+  .audio-player{
+    display:none;align-items:center;gap:12px;
+    background:#fff;border:1px solid var(--border);border-radius:12px;
+    padding:10px 16px;margin-bottom:16px;max-width:760px;
+  }
+  .audio-player.open{display:flex}
+  .audio-player .play{
+    width:36px;height:36px;border-radius:50%;border:none;
+    background:var(--blue);color:#fff;display:grid;place-items:center;flex-shrink:0;
+  }
+  .audio-player .play:hover{background:#255fd4}
+  .audio-player .play svg{width:15px;height:15px}
+  .audio-player .bar{flex:1;height:7px;background:#eef1f7;border-radius:5px;overflow:hidden}
+  .audio-player .bar .prog{height:100%;width:0%;background:var(--blue);border-radius:5px;transition:width .25s linear}
+  .audio-player .tm{font-size:.8rem;font-weight:800;color:var(--muted);white-space:nowrap;min-width:78px;text-align:right}
+
+  .flag{color:#c3cbde}
+  .flag.on{color:var(--red)}
+  .caller-num{color:var(--muted)}
+  .staff-cell{display:flex;flex-direction:column;gap:2px}
+  .staff-cell b{font-weight:800}
+  .staff-cell span{color:var(--muted);font-size:.8rem;font-weight:700}
+  .unassigned{color:var(--orange);font-style:italic;font-weight:800}
+
+  /* ============ TRANSCRIPT DRAWER (inline row) ============ */
+  tr.transcript-row td{background:#f8fafd;padding:0;border-bottom:1px solid var(--border)}
+  .transcript-box{padding:18px 24px 22px;display:none}
+  .transcript-box.open{display:block}
+  .t-meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  .t-chip{background:#fff;border:1px solid var(--border);border-radius:9px;padding:6px 12px;font-size:.82rem;font-weight:800;color:var(--muted)}
+  .t-chip b{color:var(--text)}
+  .bubbles{display:flex;flex-direction:column;gap:10px;max-width:760px}
+  .bubble{max-width:78%;padding:10px 15px;border-radius:14px;font-weight:600;font-size:.92rem;line-height:1.5;position:relative}
+  .bubble .who{display:block;font-size:.74rem;font-weight:900;letter-spacing:.03em;margin-bottom:3px;opacity:.75}
+  .bubble.staff{align-self:flex-start;background:#fff;border:1px solid var(--border);border-bottom-left-radius:4px}
+  .bubble.staff .who{color:var(--blue)}
+  .bubble.caller{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+  .bubble.caller .who{color:#dce8ff;opacity:1}
+  .t-scores{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .t-score{background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:.84rem;font-weight:800}
+  .t-score b{font-size:.95rem}
+  .t-note{margin-top:14px;background:var(--orange-soft);border:1px solid #f3ddb2;border-radius:10px;padding:11px 15px;font-size:.88rem;font-weight:700;color:#8a5b06;max-width:760px}
+  .t-note b{color:#6e4903}
+
+  /* ============ MODALS ============ */
+  .overlay{position:fixed;inset:0;background:rgba(33,41,70,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .modal-lg{max-width:680px}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--border)}
+  .modal-head h3{font-size:1.05rem;font-weight:900}
+  .x-btn{background:none;border:none;font-size:1.4rem;color:var(--muted);line-height:1;padding:4px}
+  .x-btn:hover{color:var(--text)}
+  .modal-body{padding:20px 22px}
+  .form-grid{display:grid;gap:14px}
+  .form-grid .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--border)}
+
+  .staff-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+  .staff-item{
+    display:flex;align-items:center;gap:12px;
+    border:1px solid var(--border);border-radius:11px;padding:10px 14px;
+  }
+  .staff-item .sv{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:.82rem;flex-shrink:0}
+  .staff-item .info{flex:1;min-width:0}
+  .staff-item .info b{display:block;font-weight:800}
+  .staff-item .info span{color:var(--muted);font-size:.8rem;font-weight:700}
+  .staff-item .del{background:none;border:none;color:var(--muted);padding:6px}
+  .staff-item .del:hover{color:var(--red)}
+  .staff-item .del svg{width:16px;height:16px}
+  .divider-label{font-weight:900;font-size:.85rem;color:var(--muted);letter-spacing:.03em;margin:6px 0 12px}
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--text);color:#fff;padding:12px 22px;border-radius:12px;
+    font-weight:800;font-size:.9rem;opacity:0;transition:.3s;z-index:99;pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* ============ MANAGE STAFF: TABS ============ */
+  .modal-xl{max-width:800px}
+  .tabs{display:flex;gap:2px;padding:0 22px;border-bottom:1px solid var(--border);background:#fff;position:sticky;top:0;z-index:2}
+  .tab{background:none;border:none;border-bottom:3px solid transparent;padding:13px 14px 11px;font-weight:800;font-size:.92rem;color:var(--muted);margin-bottom:-1px}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+  .pane{display:none}
+  .pane.active{display:block}
+  .help{color:var(--muted);font-size:.86rem;font-weight:700;line-height:1.55;margin-bottom:16px}
+  .pane-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+
+  /* month summary */
+  .month-bar{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;background:var(--orange-soft);border:1px solid #f3ddb2;border-radius:12px;padding:12px 16px;margin-bottom:16px}
+  .month-bar .field{min-width:190px}
+  .month-bar .field label{color:#8a5b06}
+  .month-bar .sum{margin-left:auto;display:flex;gap:22px;font-weight:800;font-size:.8rem;color:#8a5b06}
+  .month-bar .sum b{display:block;font-size:1.35rem;font-weight:900;color:#6e4903;line-height:1.1}
+
+  /* staff earnings */
+  .staff-item .stats{display:flex;align-items:stretch}
+  .stat{text-align:center;min-width:70px;border-left:1px solid var(--border);padding:0 10px}
+  .stat b{display:block;font-weight:900;font-size:.98rem;line-height:1.3}
+  .stat span{font-size:.72rem;color:var(--muted);font-weight:800}
+  .stat .money{color:var(--green)}
+  .stat .pill-sm{display:inline-block;padding:1px 8px;border-radius:10px;color:#fff;font-size:.82rem}
+
+  /* score levels */
+  .grade-bar{display:flex;height:14px;border-radius:8px;overflow:hidden;margin:18px 0 8px}
+  .grade-bar div{height:100%;transition:width .2s}
+  .grade-legend{display:flex;gap:18px;flex-wrap:wrap;font-weight:800;font-size:.86rem}
+  .grade-legend span{display:flex;align-items:center;gap:7px}
+  .msg{border-radius:10px;padding:10px 14px;font-size:.86rem;font-weight:700;margin-top:12px;line-height:1.5}
+  .msg.err{background:var(--red-soft);color:#a12424;border:1px solid #f5c6c6}
+  .msg.warn{background:var(--orange-soft);color:#8a5b06;border:1px solid #f3ddb2}
+
+  /* carrot tiers */
+  .cfg-row{display:grid;grid-template-columns:1fr 1.6fr;gap:14px;margin-bottom:16px}
+  .tier-table{width:100%;border-collapse:collapse;margin-bottom:10px}
+  .tier-table thead th{background:none;border:none;padding:4px 6px 6px;font-size:.8rem}
+  .tier-table tbody td{padding:4px 6px;border:none}
+  .tier-table tbody tr:hover{background:none}
+  .tier-table input{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-weight:700;font-size:.92rem;color:var(--text)}
+  .tier-table input.bad{border-color:var(--red);background:var(--red-soft)}
+  .tier-table .row-del{background:none;border:none;color:var(--muted);padding:6px}
+  .tier-table .row-del:hover{color:var(--red)}
+  .tier-table .row-del svg{width:16px;height:16px}
+  .field input.bad{border-color:var(--red);background:var(--red-soft)}
+  .add-line{width:100%;border:1.5px dashed #c9d3e6;background:#fafbfe;border-radius:10px;padding:10px;font-weight:800;font-size:.9rem;color:var(--blue)}
+  .add-line:hover{background:var(--blue-soft)}
+
+  /* carrot in calls table */
+  .carrot-chip{display:inline-flex;align-items:center;gap:5px;background:var(--orange-soft);color:#a86400;border-radius:16px;padding:4px 11px;font-weight:900;font-size:.85rem;white-space:nowrap}
+  .carrot-none{color:#b4bdd2;font-weight:800;font-size:.85rem}
+
+  .modal-xxl{max-width:1040px}
+  .tab .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#eef1f7;color:var(--muted);font-size:.74rem;font-weight:900;margin-right:6px}
+  .tab.active .n{background:var(--blue);color:#fff}
+  .toolbar{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .toolbar .field{min-width:170px}
+  .toolbar .push{margin-left:auto}
+  .grid-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+  .xtable{width:100%;border-collapse:collapse}
+  .xtable thead th{padding:10px 10px;font-size:.76rem;letter-spacing:.02em;white-space:normal;line-height:1.3}
+  .xtable tbody td{padding:10px 10px;font-size:.9rem}
+  .xtable input{width:62px;padding:8px 9px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-weight:800;font-size:.9rem;color:var(--text);text-align:center}
+  .xtable input.adj{border-color:#9fbcf7;background:var(--blue-soft);color:var(--blue)}
+  .xtable input:focus,.tier-table input:focus,.field input:focus,.field select:focus{outline:2px solid #bcd2fb;outline-offset:1px}
+  .who{display:flex;align-items:center;gap:10px}
+  .who .sv{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:.76rem;flex-shrink:0}
+  .who b{display:block;font-weight:800;white-space:nowrap}
+  .who span{color:var(--muted);font-size:.76rem;font-weight:700;white-space:nowrap}
+  .ai-hint{display:block;color:var(--muted);font-size:.7rem;font-weight:800;margin-top:3px;text-align:center}
+  .weights{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:12px;align-items:end;margin-bottom:16px}
+  .weights .field input{text-align:left}
+  .wtotal{font-weight:900;font-size:.88rem;padding:10px 12px;border-radius:10px;white-space:nowrap}
+  .wtotal.ok{background:var(--green-soft);color:var(--green)}
+  .wtotal.bad{background:var(--red-soft);color:var(--red)}
+  .reset-row{background:none;border:none;color:var(--muted);font-weight:800;font-size:.8rem;text-decoration:underline;padding:4px}
+  .reset-row:hover{color:var(--blue)}
+  .section-gap{height:22px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--border);background:#fff;border-radius:18px;padding:7px 13px;font-weight:800;font-size:.82rem;color:var(--text)}
+  .chip:hover{background:var(--bg)}
+  .chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+  .sum-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+  .sum-card{border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+  .sum-card b{display:block;font-size:1.5rem;font-weight:900;line-height:1.15}
+  .sum-card span{color:var(--muted);font-size:.8rem;font-weight:800}
+  .sum-card.carrot{background:var(--orange-soft);border-color:#f3ddb2}
+  .sum-card.carrot b{color:#a86400}
+  .xtable tr.srow{cursor:pointer}
+  .xtable tr.srow .chev{transition:transform .15s;color:var(--muted)}
+  .xtable tr.srow.open .chev{transform:rotate(90deg)}
+  .xtable tr.detail td{background:#f8fafd;padding:0}
+  .xtable tr.detail .inner{display:none;padding:10px 16px 14px 54px}
+  .xtable tr.detail.open .inner{display:block}
+  .bk{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:6px 14px;font-size:.85rem;font-weight:700;max-width:520px}
+  .bk .h{color:var(--muted);font-size:.74rem;font-weight:900}
+  .xtable tfoot td{padding:12px;font-weight:900;border-top:1px solid var(--border);background:#f8fafd}
+  .money-c{color:var(--green);font-weight:900}
+  #paneSummary.mode-call .range-month,#paneSummary.mode-staff .range-day{display:none}
+  .mode-note{display:flex;align-items:center;gap:8px;background:var(--blue-soft);border:1px solid #c9dbff;color:#2552b0;border-radius:10px;padding:9px 14px;font-size:.85rem;font-weight:800;margin-bottom:14px}
+  .mode-note a{color:inherit;cursor:pointer;text-decoration:underline;margin-left:auto;white-space:nowrap}
+  .rate{display:flex;align-items:center;gap:8px;font-weight:800}
+  .rate .track{width:60px;height:7px;background:#eef1f7;border-radius:5px;overflow:hidden}
+  .rate .track i{display:block;height:100%;background:var(--orange);border-radius:5px}
+  .tiers-bk{border-collapse:collapse;font-size:.85rem;min-width:420px}
+  .tiers-bk th{background:none!important;border:none!important;padding:2px 18px 6px 0!important;font-size:.74rem!important;text-align:left}
+  .tiers-bk td{border:none!important;padding:5px 18px 5px 0!important;font-size:.86rem!important}
+  .tiers-bk tr.none td{color:var(--muted)}
+  .tiers-bk .bar{width:90px;height:7px;background:#e6eaf3;border-radius:5px;overflow:hidden;display:inline-block;vertical-align:middle}
+  .tiers-bk .bar i{display:block;height:100%;background:var(--orange)}
+  .tiers-bk tfoot td{border-top:1px solid var(--border)!important;font-weight:900;background:none!important}
+  .calls-toggle{background:none;border:none;color:var(--blue);font-weight:800;font-size:.84rem;padding:8px 0 0;text-decoration:underline}
+  .calls-list{display:none;max-height:220px;overflow-y:auto;margin-top:8px;border:1px solid var(--border);border-radius:10px;background:#fff;padding:8px 12px;max-width:520px}
+  .calls-list.open{display:block}
+  .calls-list .bk{max-width:none}
+
+  .tab .dot-u{display:none;width:7px;height:7px;border-radius:50%;background:var(--orange);margin-left:6px;vertical-align:middle}
+  .tab.dirty .dot-u{display:inline-block}
+  .unsaved{display:none;align-items:center;gap:6px;margin-right:auto;color:#a86400;font-weight:800;font-size:.85rem}
+  .unsaved.on{display:flex}
+  .unsaved::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--orange)}
+  .staff-item.removing{background:var(--red-soft);border-color:#f5c6c6}
+  .staff-item.removing .info b{text-decoration:line-through;color:#a12424}
+  .undo{background:none;border:none;color:var(--blue);font-weight:800;font-size:.84rem;text-decoration:underline}
+  .rm-tag{color:#a12424;font-weight:800;font-size:.8rem}
+  .leave-bar{display:none;align-items:center;gap:10px;flex:1;background:var(--orange-soft);border:1px solid #f3ddb2;border-radius:10px;padding:8px 12px;color:#8a5b06;font-weight:800;font-size:.86rem}
+  .leave-bar.on{display:flex}
+  .leave-bar span{margin-right:auto}
+  .modal-foot.leaving > .btn-close{display:none}
+  .range-sel{min-width:190px}
+  .xtable tr.srow.sel td{background:var(--blue-soft)}
+  /* details card */
+  .detail-card{margin-top:16px;border:1px solid #c9dbff;border-radius:14px;background:#fff;box-shadow:0 4px 18px rgba(47,111,237,.08)}
+  .detail-card[hidden]{display:none}
+  .dc-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border)}
+  .dc-head .meta{color:var(--muted);font-size:.82rem;font-weight:700}
+  .dc-head .mode{margin-left:auto;background:var(--blue-soft);color:var(--blue);border-radius:14px;padding:4px 11px;font-size:.78rem;font-weight:900;white-space:nowrap}
+  .dc-body{padding:16px 18px 18px}
+  .dc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+  .dc-stat{background:#f8fafd;border-radius:10px;padding:10px 12px}
+  .dc-stat b{display:block;font-size:1.15rem;font-weight:900}
+  .dc-stat span{color:var(--muted);font-size:.76rem;font-weight:800}
+  .dc-cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .dc-sub{font-weight:900;font-size:.85rem;margin-bottom:8px}
+  .dc-calls{max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:10px}
+  .dc-calls table{width:100%;border-collapse:collapse}
+  .dc-calls th{position:sticky;top:0;background:#f8fafd;padding:8px 10px;font-size:.72rem}
+  .dc-calls td{padding:8px 10px;font-size:.84rem;border-bottom:1px solid var(--border)}
+  .tb{width:100%;border-collapse:collapse}
+  .tb th{background:none;border:none;padding:0 8px 6px 0;font-size:.72rem;text-align:left;color:var(--muted)}
+  .tb td{border:none;padding:6px 8px 6px 0;font-size:.86rem;font-weight:700}
+  .tb tr.none td{color:var(--muted)}
+  .tb tfoot td{border-top:1px solid var(--border);font-weight:900}
+  .tb .bar{width:70px;height:7px;background:#e6eaf3;border-radius:5px;overflow:hidden;display:inline-block;vertical-align:middle}
+  .tb .bar i{display:block;height:100%;background:var(--orange)}
+  .months{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .mcard{border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+  .mcard .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:900}
+  .mcard .crit{display:grid;grid-template-columns:1fr 60px 32px;gap:6px 8px;align-items:center;font-size:.8rem;font-weight:700;margin-bottom:10px}
+  .mcard .crit .track{height:6px;background:#eef1f7;border-radius:4px;overflow:hidden}
+  .mcard .crit .track i{display:block;height:100%;background:var(--blue)}
+  .mcard .crit .adj{color:var(--blue)}
+  .mcard .bot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:9px;font-size:.84rem;font-weight:800;color:var(--muted)}
+  @media (max-width:760px){ .dc-cols,.dc-stats{grid-template-columns:1fr 1fr} }
+
+  @media (max-width:760px){
+    .weights{grid-template-columns:1fr 1fr}
+    .sum-cards{grid-template-columns:1fr}
+  }
+
+  @media (max-width:640px){
+    .cfg-row,.form-grid .two{grid-template-columns:1fr}
+    .staff-item{flex-wrap:wrap}
+    .staff-item .stats{width:100%;justify-content:space-between}
+    .stat:first-child{border-left:none}
+  }
+
+  @media (max-width:1200px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .score-row{grid-template-columns:1fr}
+    .filters{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:860px){
+    .sidebar{display:none}
+    .table-panel{overflow-x:auto}
+    table{min-width:900px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-badge">AI</div>
+    <div class="logo-text">Your AI<br>Front Desk</div>
+  </div>
+  <nav class="nav">
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Call Logs / Voicemail</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>KPIs</a>
+    <a href="#" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Staff Development (Beta)</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>AI Management</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1M9 13h1m4 0h1M9 17h1m4 0h1"/></svg>Clients</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><path d="M19 8v6M22 11h-6"/></svg>Users For Clients</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>Client Form</a>
+    <div class="spacer"></div>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>Reports</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>Tech Support Ticket</a>
+    <a href="#" style="padding-left:44px">Versioning</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>Change Account Password</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Create Admin Account</a>
+  </nav>
+  <div class="ver">Ver 2.3</div>
+</aside>
+
+<!-- ================= MAIN ================= -->
+<main class="main">
+  <div class="topbar">
+    <div class="avatar-chip"><span class="av">M</span>Marwa</div>
+  </div>
+
+  <!-- Filters -->
+  <section class="filters">
+    <div class="field">
+      <label>Branch</label>
+      <select id="fBranch">
+        <option value="">All Branches</option>
+        <option>Medical Records</option>
+        <option>White Plains</option>
+        <option>National Harbor</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Staff Member</label>
+      <select id="fStaff"><option value="">All Staff</option></select>
+    </div>
+    <div class="field">
+      <label>Date From</label>
+      <input type="date" value="2026-09-01">
+    </div>
+    <div class="field">
+      <label>Date To</label>
+      <input type="date" value="2026-09-01">
+    </div>
+    <button class="btn btn-primary" onclick="applyFilters()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Search
+    </button>
+    <button class="btn btn-ghost" onclick="resetFilters()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>
+      Reset
+    </button>
+  </section>
+
+  <!-- KPI Cards -->
+  <section class="kpis">
+    <div class="kpi">
+      <div class="icon bg-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <h3>Average Score</h3>
+      <div class="big c-orange" id="kAvg">7.8<small>/10</small></div>
+      <p id="kAvgSub">Across 10 analyzed calls</p>
+    </div>
+    <div class="kpi">
+      <div class="icon bg-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></div>
+      <h3>Calls Analyzed</h3>
+      <div class="big c-blue" id="kCalls">10</div>
+      <p id="kCallsSub">10 total in the selected range</p>
+    </div>
+    <div class="kpi">
+      <div class="icon bg-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg></div>
+      <h3>Issue Resolved</h3>
+      <div class="big c-green" id="kResolved">9</div>
+      <p>90% scored 6+ on problem resolution</p>
+    </div>
+    <div class="kpi">
+      <div class="icon bg-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>
+      <h3>Needs Review</h3>
+      <div class="big c-red" id="kReview">0</div>
+      <p id="kReviewSub">Overall score below 6/10</p>
+    </div>
+  </section>
+
+  <!-- Overall Score + Criteria -->
+  <section class="score-row">
+    <div class="panel">
+      <h2>Overall Score</h2>
+      <div class="donut-wrap">
+        <div class="donut">
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="84" fill="none" stroke="#eef1f7" stroke-width="20"/>
+            <circle id="donutArc" cx="100" cy="100" r="84" fill="none" stroke="var(--orange)" stroke-width="20"
+              stroke-linecap="round" stroke-dasharray="411.5 527.8"/>
+          </svg>
+          <div class="center"><b id="donutVal">7.8</b><span>out of 10</span></div>
+        </div>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--green)"></i>Excellent <b id="lExc">4</b></span>
+          <span><i class="dot" style="background:var(--orange)"></i>Fair <b id="lFair">6</b></span>
+          <span><i class="dot" style="background:var(--red)"></i>Poor <b id="lPoor">0</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Scoring Criteria</h2>
+        <span class="hint">average score per criterion</span>
+      </div>
+      <div class="criterion">
+        <div class="row"><span class="name"><i class="dot" style="background:var(--blue)"></i>Problem Resolution</span><span style="color:var(--blue)">7.2 / 10</span></div>
+        <div class="track"><div class="fill" style="width:72%;background:var(--blue)"></div></div>
+      </div>
+      <div class="criterion">
+        <div class="row"><span class="name"><i class="dot" style="background:var(--purple)"></i>Greeting &amp; Courtesy</span><span style="color:var(--purple)">8.4 / 10</span></div>
+        <div class="track"><div class="fill" style="width:84%;background:var(--purple)"></div></div>
+      </div>
+      <div class="criterion">
+        <div class="row"><span class="name"><i class="dot" style="background:var(--violet)"></i>Tone &amp; Patience</span><span style="color:var(--violet)">8.3 / 10</span></div>
+        <div class="track"><div class="fill" style="width:83%;background:var(--violet)"></div></div>
+      </div>
+      <div class="criterion">
+        <div class="row"><span class="name"><i class="dot" style="background:#c98ef5"></i>Responsiveness</span><span style="color:#b06ef0">7.9 / 10</span></div>
+        <div class="track"><div class="fill" style="width:79%;background:#c98ef5"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calls Table -->
+  <section class="table-panel">
+    <div class="table-head">
+      <h2>Analyzed Calls</h2>
+      <button class="btn btn-green" onclick="openStaffModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><path d="M19 8v6M22 11h-6"/></svg>
+        Manage Staff
+      </button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></th>
+          <th>Time</th>
+          <th>Branch</th>
+          <th>Staff Member</th>
+          <th>Caller</th>
+          <th>Score</th>
+          <th>Carrot</th>
+          <th>AI Note</th>
+          <th>Duration</th>
+          <th>Call Review</th>
+          <th>Detail</th>
+        </tr>
+      </thead>
+      <tbody id="callsBody"></tbody>
+    </table>
+  </section>
+</main>
+
+<!-- ================= STAFF MODAL ================= -->
+<div class="overlay" id="staffOverlay">
+  <div class="modal modal-xxl">
+    <div class="modal-head">
+      <h3>Manage Staff</h3>
+      <button class="x-btn" onclick="closeStaffModal()">&times;</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-pane="paneStaff" onclick="switchTab('paneStaff')"><span class="n">1</span>Staff<i class="dot-u" title="Unsaved changes"></i></button>
+      <button class="tab" data-pane="paneScores" onclick="switchTab('paneScores')"><span class="n">2</span>Staff scores<i class="dot-u" title="Unsaved changes"></i></button>
+      <button class="tab" data-pane="paneCarrots" onclick="switchTab('paneCarrots')"><span class="n">3</span>Carrot rules<i class="dot-u" title="Unsaved changes"></i></button>
+      <button class="tab" data-pane="paneSummary" onclick="switchTab('paneSummary')"><span class="n">4</span>Earnings summary</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- ===== 1. STAFF ===== -->
+      <div class="pane active" id="paneStaff">
+        <div class="divider-label">Add a staff member</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Full name</label>
+            <input type="text" id="newStaffName" placeholder="e.g. Sarah Mitchell">
+          </div>
+          <div class="two">
+            <div class="field">
+              <label>Branch</label>
+              <select id="newStaffBranch">
+                <option>Medical Records</option>
+                <option>White Plains</option>
+                <option>National Harbor</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Extension / phone</label>
+              <input type="text" id="newStaffExt" placeholder="e.g. +13017830050">
+            </div>
+          </div>
+        </div>
+        <div class="pane-actions" style="margin-bottom:22px">
+          <button class="btn btn-primary" onclick="addStaff()">Add staff member</button>
+        </div>
+
+        <div class="divider-label">Current staff members <span id="staffCount"></span></div>
+        <div class="staff-list" id="staffList" style="margin-bottom:0"></div>
+        <div class="pane-actions">
+          <span class="unsaved" id="unsaved-staff">Unsaved changes</span>
+          <button class="btn btn-ghost" onclick="discardStaff()">Discard</button>
+          <button class="btn btn-primary" onclick="saveStaff()">Save changes</button>
+        </div>
+      </div>
+
+      <!-- ===== 2. STAFF SCORES ===== -->
+      <div class="pane" id="paneScores">
+        <p class="help">Each staff member's monthly score is built from the scoring criteria. Values start from the AI's average for that month — type over any of them to adjust it. Adjusted values are highlighted in blue. Nothing changes until you press Save.</p>
+
+        <div class="divider-label">Criteria weights</div>
+        <div class="weights" id="weightsRow"></div>
+        <div id="wMsg" style="margin:-4px 0 16px"></div>
+
+        <div class="toolbar">
+          <div class="field">
+            <label>Month</label>
+            <select id="gridMonth" onchange="renderScoreGrid()"></select>
+          </div>
+        </div>
+        <div class="grid-wrap">
+          <table class="xtable">
+            <thead id="gridHead"></thead>
+            <tbody id="gridBody"></tbody>
+          </table>
+        </div>
+
+        <div class="section-gap"></div>
+        <div class="divider-label">Score levels</div>
+        <p class="help" style="margin-bottom:12px">Where each level starts. These set the score colours, the Overall Score legend and the Needs Review count across the dashboard.</p>
+        <div class="form-grid">
+          <div class="two">
+            <div class="field">
+              <label>Excellent starts at</label>
+              <input type="number" id="gExc" min="0" max="10" step="0.1" oninput="renderGradePreview();setDirty('scores')">
+            </div>
+            <div class="field">
+              <label>Fair starts at</label>
+              <input type="number" id="gFair" min="0" max="10" step="0.1" oninput="renderGradePreview();setDirty('scores')">
+            </div>
+          </div>
+        </div>
+        <div class="grade-bar" id="gradeBar"></div>
+        <div class="grade-legend" id="gradeLegend"></div>
+        <div id="gradeMsg"></div>
+        <div class="pane-actions">
+          <span class="unsaved" id="unsaved-scores">Unsaved changes</span>
+          <button class="btn btn-ghost" onclick="resetGrades()">Reset levels to 8 / 6</button>
+          <button class="btn btn-ghost" onclick="loadScoresDraft()">Discard</button>
+          <button class="btn btn-primary" onclick="saveScores()">Save staff scores</button>
+        </div>
+      </div>
+
+      <!-- ===== 3. CARROT RULES ===== -->
+      <div class="pane" id="paneCarrots">
+        <p class="help">Each score range pays a fixed carrot amount. Ranges are inclusive on both ends — for example 7.01 to 7.5 covers a 7.5 score. Nothing changes until you press Save.</p>
+        <div class="cfg-row">
+          <div class="field">
+            <label>Currency</label>
+            <input type="text" id="cCurrency" maxlength="5" oninput="updateCurrencyHead();setDirty('carrots')">
+          </div>
+          <div class="field">
+            <label>How the carrot is given</label>
+            <select id="cBasis" onchange="setDirty('carrots')">
+              <option value="staff">Once a month — from the staff score (section 2)</option>
+              <option value="call">On every call — the month's total is the sum</option>
+            </select>
+          </div>
+        </div>
+        <table class="tier-table">
+          <thead>
+            <tr><th>From</th><th>To</th><th id="cHead">Carrot ($)</th><th style="width:40px"></th></tr>
+          </thead>
+          <tbody id="tierBody"></tbody>
+        </table>
+        <button class="add-line" onclick="addTier()">+ Add another line</button>
+        <div id="tierMsg"></div>
+        <div class="pane-actions">
+          <span class="unsaved" id="unsaved-carrots">Unsaved changes</span>
+          <button class="btn btn-ghost" onclick="resetTiers()">Reset lines to defaults</button>
+          <button class="btn btn-ghost" onclick="loadCarrotsDraft()">Discard</button>
+          <button class="btn btn-primary" onclick="saveTiers()">Save carrot rules</button>
+        </div>
+      </div>
+
+      <!-- ===== 4. EARNINGS SUMMARY ===== -->
+      <div class="pane" id="paneSummary">
+        <div class="mode-note" id="modeNote"></div>
+        <div class="toolbar">
+          <div class="field range-sel">
+            <label>Period</label>
+            <select id="sRange" onchange="applyRange(this.value)"></select>
+          </div>
+          <div class="field range-day">
+            <label>Date from</label>
+            <input type="date" id="sFrom" onchange="setCustom();renderSummary()">
+          </div>
+          <div class="field range-day">
+            <label>Date to</label>
+            <input type="date" id="sTo" onchange="setCustom();renderSummary()">
+          </div>
+          <div class="field range-month">
+            <label>Month from</label>
+            <select id="sFromM" onchange="setCustom();renderSummary()"></select>
+          </div>
+          <div class="field range-month">
+            <label>Month to</label>
+            <select id="sToM" onchange="setCustom();renderSummary()"></select>
+          </div>
+          <button class="btn btn-ghost push" onclick="exportSummary()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>
+            Export CSV
+          </button>
+        </div>
+        <div id="sumMsg"></div>
+        <div class="sum-cards">
+          <div class="sum-card carrot"><b id="sTotal">$0</b><span>total carrot payout</span></div>
+          <div class="sum-card"><b id="sCount">0</b><span>carrots earned</span></div>
+          <div class="sum-card"><b id="sPaid">0</b><span>staff members earning</span></div>
+        </div>
+        <div class="grid-wrap">
+          <table class="xtable">
+            <thead>
+              <tr><th>Staff member</th><th>Calls</th><th>Avg call score</th><th id="sScoreHead">Staff score</th><th>Carrots</th><th>Earned</th><th></th></tr>
+            </thead>
+            <tbody id="sumBody"></tbody>
+            <tfoot id="sumFoot"></tfoot>
+          </table>
+        </div>
+        <div class="detail-card" id="detailCard" hidden></div>
+      </div>
+
+    </div>
+    <div class="modal-foot" id="staffFoot">
+      <div class="leave-bar" id="leaveBar">
+        <span id="leaveText">You have unsaved changes.</span>
+        <button class="btn btn-ghost" onclick="hideLeaveBar()">Keep editing</button>
+        <button class="btn btn-primary" style="background:var(--red)" onclick="closeStaffModal(true)">Discard &amp; close</button>
+      </div>
+      <button class="btn btn-ghost btn-close" onclick="closeStaffModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= ASSIGN STAFF MODAL ================= -->
+<div class="overlay" id="assignOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Assign Staff to Call</h3>
+      <button class="x-btn" onclick="closeAssignModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--muted);font-weight:700;font-size:.9rem;margin-bottom:14px" id="assignInfo"></p>
+      <div class="field">
+        <label>Staff member</label>
+        <select id="assignSelect"></select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeAssignModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAssign()">Save assignment</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= DATA ================= */
+let staff = [
+  { id: 1, name: "Sarah Mitchell",  branch: "Medical Records", ext: "+13017830050", color: "#2f6fed" },
+  { id: 2, name: "James Carter",    branch: "White Plains",    ext: "+19145550132", color: "#1eab63" },
+  { id: 3, name: "Emily Rodriguez", branch: "National Harbor", ext: "+13015550178", color: "#7b3ff2" },
+];
+
+let calls = [
+  {
+    id: 1, time: "9/01/2026 2:41 PM", branch: "Medical Records", staffId: 1,
+    caller: "+13017373300", score: 7.1, duration: "3:42", flagged: false,
+    aiNote: "Staff resolved the records request but missed confirming the fax number before ending the call.",
+    scores: { resolution: 7.0, greeting: 8.0, tone: 7.5, responsiveness: 6.0 },
+    transcript: [
+      { who: "staff",  text: "Thank you for calling Medical Records, this is Sarah. How can I help you today?" },
+      { who: "caller", text: "Hi, I need a copy of my MRI report from last week sent to my primary doctor." },
+      { who: "staff",  text: "Of course. Can I have your full name and date of birth to pull up your record?" },
+      { who: "caller", text: "It's Daniel Hayes, March 14th, 1985." },
+      { who: "staff",  text: "Thank you, Daniel. I see the MRI from August 26th. I'll send the report to the physician on file today." },
+      { who: "caller", text: "Great, how long does that usually take?" },
+      { who: "staff",  text: "It goes out by fax within 24 hours. Is there anything else I can help with?" },
+      { who: "caller", text: "No, that's all. Thank you." }
+    ]
+  },
+  {
+    id: 2, time: "9/01/2026 1:15 PM", branch: "White Plains", staffId: 2,
+    caller: "+19145550966", score: 9.2, duration: "2:18", flagged: false,
+    aiNote: "Excellent handling — clear greeting, verified identity, confirmed appointment details twice.",
+    scores: { resolution: 9.5, greeting: 9.0, tone: 9.5, responsiveness: 8.8 },
+    transcript: [
+      { who: "staff",  text: "Good afternoon, White Plains imaging center, this is James speaking." },
+      { who: "caller", text: "Hi, I'd like to reschedule my CT scan from Thursday to next Monday if possible." },
+      { who: "staff",  text: "I can help with that. May I have your name and date of birth?" },
+      { who: "caller", text: "Laura Bennett, July 2nd, 1990." },
+      { who: "staff",  text: "Thank you, Laura. I have your CT scheduled Thursday at 10:30 AM. Monday we have 9:00 AM or 2:15 PM available — which works better?" },
+      { who: "caller", text: "9 AM works." },
+      { who: "staff",  text: "Done — your CT scan is now Monday at 9:00 AM. Please arrive 15 minutes early and bring your referral. You'll also get a text confirmation shortly." },
+      { who: "caller", text: "Perfect, thanks so much!" }
+    ]
+  },
+  {
+    id: 3, time: "9/01/2026 11:52 AM", branch: "National Harbor", staffId: 3,
+    caller: "+12025550419", score: 6.4, duration: "5:07", flagged: true,
+    aiNote: "Long hold time without updates; caller repeated the request twice before it was understood.",
+    scores: { resolution: 6.0, greeting: 7.5, tone: 7.0, responsiveness: 5.0 },
+    transcript: [
+      { who: "staff",  text: "National Harbor, this is Emily." },
+      { who: "caller", text: "Hi, I'm calling about a billing question on my last ultrasound visit." },
+      { who: "staff",  text: "One moment, let me check... please hold." },
+      { who: "caller", text: "Hello? Are you still there? I was asking about the billing on my ultrasound." },
+      { who: "staff",  text: "Yes, sorry for the wait. Can you give me the invoice number?" },
+      { who: "caller", text: "It's INV-88214. I was charged twice for the same visit." },
+      { who: "staff",  text: "I see the duplicate charge. I'll flag it for our billing team — you should see the refund in 5 to 7 business days." },
+      { who: "caller", text: "Okay, thank you." }
+    ]
+  },
+  {
+    id: 4, time: "9/01/2026 10:20 AM", branch: "Medical Records", staffId: null,
+    caller: "+13015550248", score: 8.5, duration: "1:56", flagged: false,
+    aiNote: "Quick and courteous — request completed in under two minutes.",
+    scores: { resolution: 8.5, greeting: 9.0, tone: 8.5, responsiveness: 8.0 },
+    transcript: [
+      { who: "staff",  text: "Medical Records, good morning. How may I help you?" },
+      { who: "caller", text: "Hi, does my chart show the X-ray results from Tuesday?" },
+      { who: "staff",  text: "Let me verify your identity first — your name and date of birth, please?" },
+      { who: "caller", text: "Marcus Webb, November 9th, 1978." },
+      { who: "staff",  text: "Thank you. Yes, the X-ray results were finalized yesterday and are available in your patient portal now." },
+      { who: "caller", text: "That's all I needed. Thanks!" }
+    ]
+  },
+  {
+    id: 5, time: "9/03/2026 9:12 AM", branch: "White Plains", staffId: 2,
+    caller: "+19145550381", score: 8.8, duration: "2:47", flagged: false,
+    aiNote: "Warm greeting and accurate prep instructions; could have offered the earliest slot first.",
+    scores: { resolution: 9.0, greeting: 9.0, tone: 8.5, responsiveness: 8.5 },
+    transcript: [
+      { who: "staff",  text: "White Plains imaging, James speaking. How can I help?" },
+      { who: "caller", text: "I need to book an abdominal ultrasound. Do I need to fast?" },
+      { who: "staff",  text: "Yes — nothing to eat or drink for 8 hours before. I have Wednesday at 11:00 AM or Thursday at 8:30 AM." },
+      { who: "caller", text: "Thursday morning, please. Thanks!" }
+    ]
+  },
+  {
+    id: 6, time: "9/04/2026 3:05 PM", branch: "Medical Records", staffId: 1,
+    caller: "+13015550612", score: 7.4, duration: "4:10", flagged: false,
+    aiNote: "Request handled correctly, but the caller was put on hold twice without explanation.",
+    scores: { resolution: 8.0, greeting: 7.5, tone: 7.5, responsiveness: 6.5 },
+    transcript: [
+      { who: "staff",  text: "Medical Records, this is Sarah." },
+      { who: "caller", text: "Hi, I need my imaging CD for a second opinion." },
+      { who: "staff",  text: "One moment please... okay, I can have the CD ready for pickup tomorrow after 10 AM." },
+      { who: "caller", text: "Great, I'll come by then." }
+    ]
+  },
+  {
+    id: 7, time: "9/08/2026 11:30 AM", branch: "National Harbor", staffId: 3,
+    caller: "+12025550733", score: 7.8, duration: "3:02", flagged: false,
+    aiNote: "Clear and polite; confirmed insurance details before scheduling.",
+    scores: { resolution: 8.0, greeting: 8.0, tone: 8.0, responsiveness: 7.2 },
+    transcript: [
+      { who: "staff",  text: "National Harbor, this is Emily. How may I help you?" },
+      { who: "caller", text: "I want to schedule a mammogram. Is my insurance accepted?" },
+      { who: "staff",  text: "Let me check your plan... yes, it's in network. I can book you Friday at 1:00 PM." },
+      { who: "caller", text: "Perfect, thank you." }
+    ]
+  },
+  {
+    id: 8, time: "9/10/2026 4:18 PM", branch: "Medical Records", staffId: 1,
+    caller: "+13015550874", score: 9.6, duration: "2:05", flagged: false,
+    aiNote: "Outstanding — fast verification, clear next steps, and a proactive follow-up offer.",
+    scores: { resolution: 9.8, greeting: 9.5, tone: 9.6, responsiveness: 9.5 },
+    transcript: [
+      { who: "staff",  text: "Good afternoon, Medical Records, Sarah speaking. How can I help?" },
+      { who: "caller", text: "My surgeon needs last month's MRI images today." },
+      { who: "staff",  text: "I've verified your record and sent the images electronically just now. I'll also call you once the surgeon's office confirms receipt." },
+      { who: "caller", text: "Wow, that was fast. Thank you so much!" }
+    ]
+  },
+  {
+    id: 9, time: "8/28/2026 10:02 AM", branch: "White Plains", staffId: 2,
+    caller: "+19145550219", score: 8.2, duration: "3:15", flagged: false,
+    aiNote: "Good handling of a reschedule; recap at the end was brief.",
+    scores: { resolution: 8.5, greeting: 8.5, tone: 8.0, responsiveness: 7.8 },
+    transcript: [
+      { who: "staff",  text: "White Plains imaging, this is James." },
+      { who: "caller", text: "I need to move my MRI to next week." },
+      { who: "staff",  text: "Sure — I have Tuesday at 3:00 PM. Does that work?" },
+      { who: "caller", text: "Yes, that's fine." }
+    ]
+  }
+];
+
+const CRITERIA = [
+  ["resolution", "Problem Resolution"],
+  ["greeting", "Greeting & Courtesy"],
+  ["tone", "Tone & Patience"],
+  ["responsiveness", "Responsiveness"]
+];
+
+let assigningCallId = null;
+let filtered = calls;
+
+/* ================= CLIENT-CONFIGURABLE SETTINGS =================
+   Wire these two objects to your backend to persist per client. */
+const DEFAULT_GRADES = { excellent: 8, fair: 6 };
+let grades = { ...DEFAULT_GRADES };
+
+const DEFAULT_TIERS = [
+  { from: 0,    to: 7,    amount: 0   },
+  { from: 7.01, to: 7.5,  amount: 10  },
+  { from: 7.6,  to: 8.0,  amount: 20  },
+  { from: 8.1,  to: 8.5,  amount: 40  },
+  { from: 8.6,  to: 9.0,  amount: 70  },
+  { from: 9.1,  to: 9.5,  amount: 100 },
+  { from: 9.6,  to: 9.99, amount: 150 },
+  { from: 10,   to: 10,   amount: 200 }
+];
+let carrotCfg = {
+  currency: "$",
+  basis: "staff",           // "staff" = one carrot a month from the staff score | "call" = carrot per call, summed
+  tiers: DEFAULT_TIERS.map(t => ({ ...t }))
+};
+let tierDraft = [];
+
+/* criteria weights (%) and manager adjustments to monthly criterion scores */
+let weights = { resolution: 25, greeting: 25, tone: 25, responsiveness: 25 };
+let overrides = {};   // key "staffId|YYYY-MM" -> { criterionKey: score }
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const initials = n => n.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+const staffById = id => staff.find(s => s.id === id);
+function pillClass(s){ return s >= grades.excellent ? "pill-green" : s >= grades.fair ? "pill-orange" : "pill-red"; }
+
+/* ---- carrots ---- */
+const r2 = n => Math.round(n * 100) / 100;
+function fmtMoney(n, cur = carrotCfg.currency){
+  const v = Number(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
+  return /^[A-Za-z]{2,}$/.test(cur) ? `${v} ${cur}` : `${cur}${v}`;
+}
+function carrotFor(score){
+  const s = r2(score);
+  const t = carrotCfg.tiers.find(t => s >= t.from - 1e-9 && s <= t.to + 1e-9);
+  return t ? t.amount : 0;
+}
+function monthKey(time){
+  const [m, , y] = time.split(" ")[0].split("/");
+  return `${y}-${m.padStart(2, "0")}`;
+}
+function monthLabel(mk){
+  const [y, m] = mk.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleString("en-US", { month: "long", year: "numeric" });
+}
+const r1 = n => Math.round(n * 10) / 10;
+const CRIT_KEYS = () => CRITERIA.map(c => c[0]);
+function callDate(c){
+  const [m, d, y] = c.time.split(" ")[0].split("/").map(Number);
+  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+}
+const dataMonths = () => [...new Set(calls.map(c => monthKey(c.time)))].sort().reverse();
+function monthsBetween(from, to){
+  const out = []; let [y, m] = from.slice(0, 7).split("-").map(Number);
+  const [ty, tm] = to.slice(0, 7).split("-").map(Number);
+  while (y < ty || (y === ty && m <= tm)){ out.push(`${y}-${String(m).padStart(2, "0")}`); m++; if (m > 12){ m = 1; y++; } }
+  return out;
+}
+const monthEnd = mk => { const [y, m] = mk.split("-").map(Number); return `${mk}-${String(new Date(y, m, 0).getDate()).padStart(2, "0")}`; };
+
+/* AI average per criterion for one staff member in one month */
+function aiCriteria(sid, mk){
+  const cs = calls.filter(c => c.staffId === sid && monthKey(c.time) === mk);
+  if (!cs.length) return null;
+  const o = {};
+  CRIT_KEYS().forEach(k => o[k] = r1(cs.reduce((a, c) => a + c.scores[k], 0) / cs.length));
+  return o;
+}
+/* AI values with the manager's adjustments on top */
+function staffCriteria(sid, mk, ovAll = overrides){
+  const ai = aiCriteria(sid, mk) || {};
+  const ov = ovAll[`${sid}|${mk}`] || {};
+  const o = {};
+  CRIT_KEYS().forEach(k => o[k] = ov[k] != null ? ov[k] : (ai[k] != null ? ai[k] : null));
+  return o;
+}
+/* weighted monthly staff score, or null when a criterion has no value */
+function staffScore(sid, mk, w = weights, ovAll = overrides){
+  const c = staffCriteria(sid, mk, ovAll);
+  if (CRIT_KEYS().some(k => c[k] == null)) return null;
+  return r1(CRIT_KEYS().reduce((a, k) => a + c[k] * w[k], 0) / 100);
+}
+/* earnings for one staff member in a date range */
+function staffSummary(sid, from, to){
+  const cs = calls.filter(c => c.staffId === sid && callDate(c) >= from && callDate(c) <= to)
+    .sort((a, b) => callDate(a).localeCompare(callDate(b)));
+  const avgCall = cs.length ? cs.reduce((a, c) => a + c.score, 0) / cs.length : null;
+  const items = []; let total = 0, count = 0, lastScore = null;
+  if (carrotCfg.basis === "call"){
+    cs.forEach(c => {
+      const a = carrotFor(c.score);
+      items.push({ label: c.time, score: c.score, amount: a, call: c });
+      if (a > 0){ total += a; count++; }
+    });
+  } else {
+    monthsBetween(from, to).forEach(mk => {
+      const sc = staffScore(sid, mk);
+      if (sc == null) return;
+      const a = carrotFor(sc);
+      items.push({ label: monthLabel(mk), score: sc, amount: a, mk });
+      lastScore = sc;
+      if (a > 0){ total += a; count++; }
+    });
+  }
+  return { n: cs.length, avgCall, items, total, count, lastScore };
+}
+
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+
+/* ================= RENDER TABLE ================= */
+function carrotCell(c){
+  if (carrotCfg.basis !== "call")
+    return `<span class="carrot-none" title="Carrots are paid on the monthly average">Monthly</span>`;
+  const a = carrotFor(c.score);
+  return a > 0 ? `<span class="carrot-chip">🥕 ${fmtMoney(a)}</span>` : `<span class="carrot-none">—</span>`;
+}
+function renderTable(){
+  const tb = $("callsBody");
+  tb.innerHTML = "";
+  filtered.forEach(c => {
+    const st = staffById(c.staffId);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><svg class="flag ${c.flagged ? "on" : ""}" width="15" height="15" viewBox="0 0 24 24" fill="${c.flagged ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg></td>
+      <td>${c.time}</td>
+      <td>${c.branch}</td>
+      <td>
+        <div class="staff-cell">
+          ${st
+            ? `<b>${esc(st.name)}</b><span>${st.ext}</span>`
+            : `<span class="unassigned">Unassigned</span>
+               <button class="mini-btn" style="margin-top:4px" onclick="openAssignModal(${c.id})">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/><path d="M19 8v6M22 11h-6"/></svg>
+                 Assign
+               </button>`}
+        </div>
+      </td>
+      <td class="caller-num">${c.caller}</td>
+      <td><span class="score-pill ${pillClass(c.score)}">${c.score.toFixed(1)}/10</span></td>
+      <td>${carrotCell(c)}</td>
+      <td><button class="mini-btn" onclick="toast('AI note: ' + this.dataset.note)" data-note="${esc(c.aiNote)}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+        Details
+      </button></td>
+      <td>${c.duration}</td>
+      <td>
+        <div class="review-cell">
+          <button class="icon-btn" id="abtn-${c.id}" title="Listen to recording" onclick="toggleAudio(${c.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor" stroke="none"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          </button>
+          <button class="icon-btn" id="tbtn-${c.id}" title="Read conversation" onclick="toggleTranscript(${c.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
+          </button>
+        </div>
+      </td>
+      <td><button class="mini-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button></td>
+    `;
+    tb.appendChild(tr);
+
+    /* transcript drawer row */
+    const trT = document.createElement("tr");
+    trT.className = "transcript-row";
+    const st2 = staffById(c.staffId);
+    const staffLabel = st2 ? esc(st2.name) : "Staff";
+    trT.innerHTML = `
+      <td colspan="11">
+        <div class="transcript-box" id="tbox-${c.id}">
+          <div class="audio-player" id="aplayer-${c.id}">
+            <button class="play" id="aplay-${c.id}" onclick="togglePlay(${c.id})">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            </button>
+            <div class="bar"><div class="prog" id="aprog-${c.id}"></div></div>
+            <span class="tm" id="atime-${c.id}">0:00 / ${c.duration}</span>
+          </div>
+          <div class="t-meta">
+            <span class="t-chip">Call ID <b>#${1000 + c.id}</b></span>
+            <span class="t-chip">Branch <b>${c.branch}</b></span>
+            <span class="t-chip">Staff <b>${staffLabel}</b></span>
+            <span class="t-chip">Duration <b>${c.duration}</b></span>
+            <span class="t-chip">Overall <b>${c.score.toFixed(1)}/10</b></span>
+          </div>
+          <div class="bubbles">
+            ${c.transcript.map(m => `
+              <div class="bubble ${m.who}">
+                <span class="who">${m.who === "staff" ? staffLabel : "Caller"}</span>
+                ${esc(m.text)}
+              </div>`).join("")}
+          </div>
+          <div class="t-scores">
+            ${CRITERIA.map(([k, label]) =>
+              `<span class="t-score">${label}: <b>${c.scores[k].toFixed(1)}</b>/10</span>`).join("")}
+          </div>
+          <div class="t-note"><b>AI Note:</b> ${esc(c.aiNote)}</div>
+        </div>
+      </td>`;
+    tb.appendChild(trT);
+  });
+}
+
+function toggleTranscript(id){
+  const box = $("tbox-" + id);
+  const btn = $("tbtn-" + id);
+  const open = box.classList.toggle("open");
+  btn.classList.toggle("active", open);
+  if (!open) stopAudio(id);
+}
+
+/* ---- mock audio playback ---- */
+const audioState = {}; // id -> {timer, elapsed, playing}
+const durSecs = d => { const [m, s] = d.split(":").map(Number); return m * 60 + s; };
+const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+
+function toggleAudio(id){
+  const box = $("tbox-" + id);
+  const player = $("aplayer-" + id);
+  const open = !player.classList.contains("open");
+  if (open){
+    box.classList.add("open");
+    $("tbtn-" + id).classList.add("active");
+    player.classList.add("open");
+    $("abtn-" + id).classList.add("active");
+  } else {
+    stopAudio(id);
+  }
+}
+
+function togglePlay(id){
+  const st = audioState[id] || (audioState[id] = { elapsed: 0, playing: false, timer: null });
+  const c = calls.find(x => x.id === id);
+  const total = durSecs(c.duration);
+  const btn = $("aplay-" + id);
+  if (st.playing){
+    clearInterval(st.timer); st.playing = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+  } else {
+    st.playing = true;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="4" height="16" rx="1"/><rect x="15" y="4" width="4" height="16" rx="1"/></svg>';
+    st.timer = setInterval(() => {
+      st.elapsed++;
+      $("aprog-" + id).style.width = Math.min(100, (st.elapsed / total) * 100) + "%";
+      $("atime-" + id).textContent = `${fmt(st.elapsed)} / ${c.duration}`;
+      if (st.elapsed >= total){
+        clearInterval(st.timer); st.playing = false; st.elapsed = 0;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+      }
+    }, 1000);
+  }
+}
+
+function stopAudio(id){
+  const st = audioState[id];
+  if (st){ clearInterval(st.timer); st.playing = false; st.elapsed = 0; }
+  const player = $("aplayer-" + id), prog = $("aprog-" + id);
+  if (player){ player.classList.remove("open"); }
+  if (prog){ prog.style.width = "0%"; }
+  const c = calls.find(x => x.id === id);
+  const tm = $("atime-" + id);
+  if (tm && c) tm.textContent = `0:00 / ${c.duration}`;
+  const ab = $("abtn-" + id);
+  if (ab) ab.classList.remove("active");
+  const ap = $("aplay-" + id);
+  if (ap) ap.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+}
+
+/* ================= KPIs + DONUT ================= */
+function renderStats(){
+  const n = filtered.length;
+  const avg = n ? filtered.reduce((a,c) => a + c.score, 0) / n : 0;
+  const resolved = filtered.filter(c => c.scores.resolution >= 6).length;
+  const review = filtered.filter(c => c.score < grades.fair).length;
+  const exc = filtered.filter(c => c.score >= grades.excellent).length;
+  const fair = filtered.filter(c => c.score >= grades.fair && c.score < grades.excellent).length;
+  const poor = filtered.filter(c => c.score < grades.fair).length;
+
+  $("kAvg").innerHTML = avg.toFixed(1) + "<small>/10</small>";
+  $("kAvgSub").textContent = `Across ${n} analyzed call${n === 1 ? "" : "s"}`;
+  $("kCalls").textContent = n;
+  $("kCallsSub").textContent = `${n} total in the selected range`;
+  $("kResolved").textContent = resolved;
+  $("kReview").textContent = review;
+  $("kReviewSub").textContent = `Overall score below ${grades.fair}/10`;
+  $("lExc").textContent = exc;
+  $("lFair").textContent = fair;
+  $("lPoor").textContent = poor;
+
+  const circ = 2 * Math.PI * 84;
+  $("donutArc").setAttribute("stroke-dasharray", `${(avg / 10) * circ} ${circ}`);
+  $("donutArc").setAttribute("stroke",
+    avg >= grades.excellent ? "var(--green)" : avg >= grades.fair ? "var(--orange)" : "var(--red)");
+  $("donutVal").textContent = avg.toFixed(1);
+}
+
+/* ================= FILTERS ================= */
+function renderStaffFilter(){
+  const sel = $("fStaff");
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">All Staff</option>` +
+    staff.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  sel.value = cur;
+}
+function applyFilters(){
+  const b = $("fBranch").value;
+  const s = $("fStaff").value;
+  filtered = calls.filter(c =>
+    (!b || c.branch === b) &&
+    (!s || c.staffId === Number(s)));
+  renderStats(); renderTable();
+}
+function resetFilters(){
+  $("fBranch").value = ""; $("fStaff").value = "";
+  filtered = calls;
+  renderStats(); renderTable();
+}
+
+/* ================= STAFF MODAL ================= */
+function switchTab(id){
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.pane === id));
+  document.querySelectorAll(".pane").forEach(p => p.classList.toggle("active", p.id === id));
+}
+const trashSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/></svg>`;
+const whoCell = s => `<div class="who"><div class="sv" style="background:${s.color}22;color:${s.color}">${initials(s.name)}</div><div><b>${esc(s.name)}</b><span>${s.branch}</span></div></div>`;
+const clone = o => JSON.parse(JSON.stringify(o));
+
+/* ---------- unsaved-changes tracking ---------- */
+const dirty = { staff: false, scores: false, carrots: false };
+const TAB_OF = { staff: "paneStaff", scores: "paneScores", carrots: "paneCarrots" };
+const NAME_OF = { staff: "Staff", scores: "Staff scores", carrots: "Carrot rules" };
+function setDirty(k, v = true){
+  dirty[k] = v;
+  $("unsaved-" + k).classList.toggle("on", v);
+  document.querySelector(`.tab[data-pane="${TAB_OF[k]}"]`).classList.toggle("dirty", v);
+  if (!Object.values(dirty).some(Boolean)) hideLeaveBar();
+}
+
+function openStaffModal(){
+  const gm = $("gridMonth"), cur = gm.value;
+  gm.innerHTML = dataMonths().map(k => `<option value="${k}">${monthLabel(k)}</option>`).join("");
+  if (cur) gm.value = cur;
+  pendingRemove.clear(); setDirty("staff", false);
+  loadScoresDraft();
+  loadCarrotsDraft();
+  renderRangeOptions();
+  if (!$("sFrom").value) applyRange(dataMonths()[0]);
+  hideLeaveBar();
+  renderStaffList();
+  $("staffOverlay").classList.add("open");
+}
+function closeStaffModal(force){
+  const open = Object.keys(dirty).filter(k => dirty[k]);
+  if (open.length && !force){
+    $("leaveText").textContent = `Unsaved changes in ${open.map(k => NAME_OF[k]).join(", ")}.`;
+    $("leaveBar").classList.add("on"); $("staffFoot").classList.add("leaving");
+    return;
+  }
+  $("staffOverlay").classList.remove("open");
+  hideLeaveBar();
+}
+function hideLeaveBar(){ $("leaveBar").classList.remove("on"); $("staffFoot").classList.remove("leaving"); }
+
+/* ---------- 1. Staff ---------- */
+const pendingRemove = new Set();
+function renderStaffList(){
+  $("staffCount").textContent = `(${staff.length})`;
+  $("staffList").innerHTML = staff.map(s => {
+    const rm = pendingRemove.has(s.id);
+    return `
+    <div class="staff-item ${rm ? "removing" : ""}">
+      <div class="sv" style="background:${s.color}22;color:${s.color}">${initials(s.name)}</div>
+      <div class="info"><b>${esc(s.name)}</b><span>${s.branch} · ${s.ext}</span></div>
+      ${rm ? `<span class="rm-tag">Will be removed on save</span><button class="undo" onclick="toggleRemove(${s.id})">Undo</button>`
+           : `<button class="del" title="Remove" onclick="toggleRemove(${s.id})">${trashSvg}</button>`}
+    </div>`;
+  }).join("") || `<p style="color:var(--muted);font-weight:700">No staff members yet.</p>`;
+  renderScoreGrid();
+  renderSummary();
+}
+function toggleRemove(id){
+  pendingRemove.has(id) ? pendingRemove.delete(id) : pendingRemove.add(id);
+  setDirty("staff", pendingRemove.size > 0);
+  renderStaffList();
+}
+function discardStaff(){ pendingRemove.clear(); setDirty("staff", false); renderStaffList(); }
+function saveStaff(){
+  if (!pendingRemove.size){ toast("No changes to save."); return; }
+  const names = staff.filter(s => pendingRemove.has(s.id)).map(s => s.name);
+  staff = staff.filter(s => !pendingRemove.has(s.id));
+  calls.forEach(c => { if (pendingRemove.has(c.staffId)) c.staffId = null; });
+  pendingRemove.clear(); setDirty("staff", false);
+  closeDetail();
+  renderStaffList(); renderStaffFilter(); renderTable();
+  toast(`${names.join(", ")} removed.`);
+}
+
+/* ---------- 2. Staff scores (draft until saved) ---------- */
+let wDraft = {}, ovDraft = {};
+const wTotal = w => r1(CRIT_KEYS().reduce((a, k) => a + (w[k] || 0), 0));
+const wValid = () => Math.abs(wTotal(wDraft) - 100) < 0.001;
+const effW = () => wValid() ? wDraft : weights;
+
+function loadScoresDraft(){
+  wDraft = { ...weights }; ovDraft = clone(overrides);
+  renderWeights();
+  $("gExc").value = grades.excellent; $("gFair").value = grades.fair;
+  renderGradePreview();
+  renderScoreGrid();
+  setDirty("scores", false);
+}
+function renderWeights(){
+  $("weightsRow").innerHTML = CRITERIA.map(([k, label]) => `
+    <div class="field"><label>${label} (%)</label>
+      <input type="number" min="0" max="100" step="1" id="w-${k}" value="${wDraft[k]}" oninput="editWeights()"></div>`).join("") +
+    `<div class="wtotal ok" id="wTotal">Total 100%</div>`;
+  showWeightState();
+}
+function showWeightState(){
+  const total = wTotal(wDraft), ok = wValid();
+  $("wTotal").className = "wtotal " + (ok ? "ok" : "bad");
+  $("wTotal").textContent = `Total ${total}%`;
+  CRIT_KEYS().forEach(k => $("w-" + k).classList.toggle("bad", !ok));
+  $("wMsg").innerHTML = ok ? "" :
+    `<div class="msg err">⚠ The weights add up to <b>${total}%</b> — that's ${r1(Math.abs(total - 100))}% ${total > 100 ? "too much" : "short"}. They must total exactly 100% before you can save.</div>`;
+}
+function editWeights(){
+  CRIT_KEYS().forEach(k => { const v = parseFloat($("w-" + k).value); wDraft[k] = isNaN(v) ? 0 : v; });
+  showWeightState();
+  setDirty("scores");
+  renderScoreGrid();
+}
+
+function renderScoreGrid(){
+  const mk = $("gridMonth").value;
+  if (!mk) return;
+  const perCall = carrotCfg.basis === "call", w = effW();
+  $("gridHead").innerHTML = `<tr><th>Staff member</th>${CRITERIA.map(([k, l]) => `<th style="text-align:center">${l}<br><span style="font-weight:700">${w[k]}%</span></th>`).join("")}<th>Staff score</th><th>Carrot</th><th></th></tr>`;
+  $("gridBody").innerHTML = staff.map(s => {
+    const ai = aiCriteria(s.id, mk) || {};
+    const ov = ovDraft[`${s.id}|${mk}`] || {};
+    const val = staffCriteria(s.id, mk, ovDraft);
+    return `<tr>
+      <td>${whoCell(s)}</td>
+      ${CRIT_KEYS().map(k => `<td style="text-align:center">
+        <input type="number" min="0" max="10" step="0.1" value="${val[k] != null ? val[k].toFixed(1) : ""}" placeholder="—"
+          class="${ov[k] != null ? "adj" : ""}" oninput="editScore(${s.id},'${k}',this)">
+        <span class="ai-hint">AI ${ai[k] != null ? ai[k].toFixed(1) : "—"}</span></td>`).join("")}
+      <td id="gs-${s.id}">${gridScoreCell(s.id, mk)}</td>
+      <td id="gc-${s.id}">${gridCarrotCell(s.id, mk, perCall)}</td>
+      <td>${Object.keys(ov).length ? `<button class="reset-row" onclick="resetScore(${s.id})">Reset to AI</button>` : ""}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="8" style="color:var(--muted)">No staff members yet.</td></tr>`;
+}
+function gridScoreCell(sid, mk){
+  const sc = staffScore(sid, mk, effW(), ovDraft);
+  return sc == null ? `<span class="carrot-none">—</span>` : `<span class="score-pill ${pillClass(sc)}">${sc.toFixed(1)}</span>`;
+}
+function gridCarrotCell(sid, mk, perCall){
+  if (perCall) return `<span class="carrot-none" title="Carrot rules are set to pay per call">Per call</span>`;
+  const sc = staffScore(sid, mk, effW(), ovDraft);
+  if (sc == null) return `<span class="carrot-none">—</span>`;
+  const a = carrotFor(sc);
+  return a > 0 ? `<span class="carrot-chip">🥕 ${fmtMoney(a)}</span>` : `<span class="carrot-none">${fmtMoney(0)}</span>`;
+}
+function editScore(sid, k, el){
+  const mk = $("gridMonth").value, key = `${sid}|${mk}`;
+  const ai = aiCriteria(sid, mk) || {};
+  const v = el.value === "" ? null : Math.min(10, Math.max(0, Number(el.value)));
+  ovDraft[key] = ovDraft[key] || {};
+  if (v == null || (ai[k] != null && r1(v) === ai[k])) delete ovDraft[key][k];
+  else ovDraft[key][k] = r1(v);
+  if (!Object.keys(ovDraft[key]).length) delete ovDraft[key];
+  el.classList.toggle("adj", ovDraft[key]?.[k] != null);
+  $("gs-" + sid).innerHTML = gridScoreCell(sid, mk);
+  $("gc-" + sid).innerHTML = gridCarrotCell(sid, mk, carrotCfg.basis === "call");
+  setDirty("scores");
+}
+function resetScore(sid){
+  delete ovDraft[`${sid}|${$("gridMonth").value}`];
+  renderScoreGrid(); setDirty("scores");
+}
+
+function readGrades(){
+  const exc = parseFloat($("gExc").value), fair = parseFloat($("gFair").value);
+  let err = "";
+  if (isNaN(exc) || isNaN(fair)) err = "Both score levels need a number.";
+  else if (fair <= 0 || exc > 10) err = "Score levels must be between 0 and 10.";
+  else if (fair >= exc) err = "Fair must start below Excellent.";
+  return { exc, fair, err };
+}
+function renderGradePreview(){
+  const { exc, fair, err } = readGrades();
+  $("gExc").classList.toggle("bad", !!err);
+  $("gFair").classList.toggle("bad", !!err);
+  $("gradeMsg").innerHTML = err ? `<div class="msg err">${err}</div>` : "";
+  if (err){ $("gradeBar").innerHTML = ""; $("gradeLegend").innerHTML = ""; return; }
+  $("gradeBar").innerHTML = `
+    <div style="width:${fair * 10}%;background:var(--red)"></div>
+    <div style="width:${(exc - fair) * 10}%;background:var(--orange)"></div>
+    <div style="width:${(10 - exc) * 10}%;background:var(--green)"></div>`;
+  $("gradeLegend").innerHTML = `
+    <span><i class="dot" style="background:var(--red)"></i>Poor: below ${fair}</span>
+    <span><i class="dot" style="background:var(--orange)"></i>Fair: ${fair} to under ${exc}</span>
+    <span><i class="dot" style="background:var(--green)"></i>Excellent: ${exc} and above</span>`;
+}
+function resetGrades(){
+  $("gExc").value = DEFAULT_GRADES.excellent; $("gFair").value = DEFAULT_GRADES.fair;
+  renderGradePreview(); setDirty("scores");
+}
+function saveScores(){
+  if (!wValid()){ showWeightState(); toast(`Weights total ${wTotal(wDraft)}% — they must be 100%.`); return; }
+  const { exc, fair, err } = readGrades();
+  if (err){ toast(err); return; }
+  weights = { ...wDraft };
+  overrides = clone(ovDraft);
+  grades = { excellent: exc, fair };
+  setDirty("scores", false);
+  renderStats(); renderTable(); renderScoreGrid(); renderSummary();
+  toast("Staff scores saved.");
+}
+
+/* ---------- 3. Carrot rules (draft until saved) ---------- */
+function loadCarrotsDraft(){
+  $("cCurrency").value = carrotCfg.currency;
+  $("cBasis").value = carrotCfg.basis;
+  tierDraft = carrotCfg.tiers.map(t => ({ ...t }));
+  updateCurrencyHead();
+  renderTiers();
+  setDirty("carrots", false);
+}
+function updateCurrencyHead(){
+  const cur = $("cCurrency").value.trim() || "$";
+  $("cHead").textContent = `Carrot (${cur})`;
+}
+function renderTiers(){
+  const num = v => (v === "" || isNaN(v)) ? "" : v;
+  $("tierBody").innerHTML = tierDraft.map((t, i) => `
+    <tr>
+      <td><input type="number" step="0.01" min="0" max="10" id="tf-${i}" value="${num(t.from)}" placeholder="from" oninput="editTier(${i},'from',this.value)"></td>
+      <td><input type="number" step="0.01" min="0" max="10" id="tt-${i}" value="${num(t.to)}" placeholder="to" oninput="editTier(${i},'to',this.value)"></td>
+      <td><input type="number" step="1" min="0" id="ta-${i}" value="${num(t.amount)}" placeholder="0" oninput="editTier(${i},'amount',this.value)"></td>
+      <td><button class="row-del" title="Remove line" onclick="removeTier(${i})">${trashSvg}</button></td>
+    </tr>`).join("");
+  validateTiers();
+}
+function editTier(i, key, val){
+  tierDraft[i][key] = val === "" ? NaN : Number(val);
+  validateTiers(); setDirty("carrots");
+}
+function addTier(){
+  tierDraft.push({ from: NaN, to: NaN, amount: NaN });
+  renderTiers(); setDirty("carrots");
+  $("tf-" + (tierDraft.length - 1)).focus();
+}
+function removeTier(i){ tierDraft.splice(i, 1); renderTiers(); setDirty("carrots"); }
+function resetTiers(){ tierDraft = DEFAULT_TIERS.map(t => ({ ...t })); renderTiers(); setDirty("carrots"); }
+function validateTiers(){
+  const errs = [], warns = [];
+  const mark = (i, k) => { const el = $(`t${k}-${i}`); if (el) el.classList.add("bad"); };
+  document.querySelectorAll("#tierBody input").forEach(el => el.classList.remove("bad"));
+
+  if (!tierDraft.length) errs.push("Add at least one line.");
+  tierDraft.forEach((t, i) => {
+    if (isNaN(t.from)) { mark(i, "f"); errs.push(`Line ${i + 1}: "From" is empty.`); }
+    if (isNaN(t.to))   { mark(i, "t"); errs.push(`Line ${i + 1}: "To" is empty.`); }
+    if (isNaN(t.amount)) { mark(i, "a"); errs.push(`Line ${i + 1}: carrot amount is empty.`); }
+    else if (t.amount < 0) { mark(i, "a"); errs.push(`Line ${i + 1}: carrot can't be negative.`); }
+    if (!isNaN(t.from) && !isNaN(t.to)){
+      if (t.from < 0 || t.to > 10){ mark(i, "f"); mark(i, "t"); errs.push(`Line ${i + 1}: scores must be between 0 and 10.`); }
+      if (t.from > t.to){ mark(i, "f"); mark(i, "t"); errs.push(`Line ${i + 1}: "From" is higher than "To".`); }
+    }
+  });
+  const ok = tierDraft.map((t, i) => ({ ...t, i })).filter(t => !isNaN(t.from) && !isNaN(t.to))
+    .sort((a, b) => a.from - b.from);
+  for (let k = 1; k < ok.length; k++){
+    const a = ok[k - 1], b = ok[k];
+    if (b.from <= a.to + 1e-9){
+      mark(a.i, "t"); mark(b.i, "f");
+      errs.push(`Lines ${a.i + 1} and ${b.i + 1} overlap (${a.from}–${a.to} and ${b.from}–${b.to}).`);
+    } else if (r2(b.from - a.to) > 0.1){
+      warns.push(`Scores between ${a.to} and ${b.from} are not covered and will earn nothing.`);
+    }
+  }
+  if (ok.length){
+    if (ok[0].from > 0) warns.push(`Scores below ${ok[0].from} are not covered.`);
+    if (ok[ok.length - 1].to < 10) warns.push(`Scores above ${ok[ok.length - 1].to} are not covered.`);
+  }
+  $("tierMsg").innerHTML =
+    (errs.length ? `<div class="msg err">${[...new Set(errs)].join("<br>")}</div>` : "") +
+    (warns.length ? `<div class="msg warn">${warns.join("<br>")}</div>` : "");
+  return errs.length === 0;
+}
+function saveTiers(){
+  if (!validateTiers()){ toast("Fix the highlighted lines first."); return; }
+  carrotCfg = {
+    currency: $("cCurrency").value.trim() || "$",
+    basis: $("cBasis").value,
+    tiers: tierDraft.map(t => ({ from: t.from, to: t.to, amount: t.amount })).sort((a, b) => a.from - b.from)
+  };
+  tierDraft = carrotCfg.tiers.map(t => ({ ...t }));
+  renderTiers(); setDirty("carrots", false);
+  closeDetail();
+  renderTable(); renderStaffList();
+  toast("Carrot rules saved.");
+}
+
+/* ---------- 4. Earnings summary ---------- */
+function renderRangeOptions(){
+  const ms = dataMonths(), cur = $("sRange").value;
+  $("sRange").innerHTML = ms.map(mk => `<option value="${mk}">${monthLabel(mk)}</option>`).join("") +
+    `<option value="all">All time</option><option value="custom">Custom range</option>`;
+  if (cur) $("sRange").value = cur;
+  const opts = [...ms].reverse().map(mk => `<option value="${mk}">${monthLabel(mk)}</option>`).join("");
+  const f = $("sFromM").value, t = $("sToM").value;
+  $("sFromM").innerHTML = opts; $("sToM").innerHTML = opts;
+  if (f) $("sFromM").value = f;
+  if (t) $("sToM").value = t;
+}
+function applyRange(p){
+  const ms = dataMonths();
+  if (!ms.length || p === "custom") { $("sRange").value = "custom"; return; }
+  const a = p === "all" ? ms[ms.length - 1] : p, b = p === "all" ? ms[0] : p;
+  $("sRange").value = p;
+  $("sFrom").value = a + "-01"; $("sTo").value = monthEnd(b);
+  $("sFromM").value = a; $("sToM").value = b;
+  renderSummary();
+}
+function setCustom(){ $("sRange").value = "custom"; }
+function getRange(){
+  if (carrotCfg.basis === "call") return { from: $("sFrom").value, to: $("sTo").value };
+  const a = $("sFromM").value, b = $("sToM").value;
+  return { from: a ? a + "-01" : "", to: b ? monthEnd(b) : "" };
+}
+function rangeLabel(){
+  const { from, to } = getRange();
+  if (carrotCfg.basis !== "call"){
+    const a = $("sFromM").value, b = $("sToM").value;
+    return a === b ? monthLabel(a) : `${monthLabel(a)} – ${monthLabel(b)}`;
+  }
+  const f = d => new Date(d + "T00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return `${f(from)} – ${f(to)}`;
+}
+function tierBreakdown(items){
+  const rows = carrotCfg.tiers.filter(t => t.amount > 0).map(t => ({ t, n: 0 }));
+  let none = 0;
+  items.forEach(it => {
+    const sc = r2(it.score);
+    const row = rows.find(r => sc >= r.t.from - 1e-9 && sc <= r.t.to + 1e-9);
+    row ? row.n++ : none++;
+  });
+  return { rows: rows.filter(r => r.n > 0), none };
+}
+
+let lastSummary = [], detailId = null;
+function renderSummary(){
+  const perCall = carrotCfg.basis === "call";
+  $("paneSummary").classList.toggle("mode-call", perCall);
+  $("paneSummary").classList.toggle("mode-staff", !perCall);
+  $("modeNote").innerHTML = (perCall
+    ? "Carrots are paid on every call — filter by any date range."
+    : "Carrots are paid once a month from the staff score — filter by month.") +
+    `<a onclick="switchTab('paneCarrots')">Change in Carrot rules</a>`;
+  $("sScoreHead").textContent = perCall ? "Calls earning a carrot" : "Staff score (latest)";
+
+  const { from, to } = getRange();
+  if (!from || !to || from > to){
+    $("sumMsg").innerHTML = from && to ? `<div class="msg err" style="margin:0 0 14px">The start of the period must be before the end.</div>` : "";
+    $("sumBody").innerHTML = ""; $("sumFoot").innerHTML = ""; lastSummary = [];
+    closeDetail(); return;
+  }
+  $("sumMsg").innerHTML = "";
+  lastSummary = staff.map(s => ({ s, m: staffSummary(s.id, from, to) }));
+  let total = 0, count = 0, paid = 0, nCalls = 0;
+  $("sumBody").innerHTML = lastSummary.map(({ s, m }) => {
+    total += m.total; count += m.count; nCalls += m.n; if (m.total > 0) paid++;
+    let col4;
+    if (perCall){
+      const pct = m.n ? Math.round(m.count / m.n * 100) : 0;
+      col4 = m.n ? `<div class="rate"><span>${m.count} of ${m.n}</span><span class="track"><i style="width:${pct}%"></i></span></div>` : `<span class="carrot-none">—</span>`;
+    } else {
+      col4 = m.lastScore != null ? `<span class="score-pill ${pillClass(m.lastScore)}">${m.lastScore.toFixed(1)}</span>` : `<span class="carrot-none">—</span>`;
+    }
+    return `
+    <tr class="srow ${detailId === s.id ? "sel" : ""}" onclick="openDetail(${s.id})">
+      <td>${whoCell(s)}</td>
+      <td>${m.n}</td>
+      <td>${m.avgCall != null ? `<span class="score-pill ${pillClass(m.avgCall)}">${m.avgCall.toFixed(1)}</span>` : `<span class="carrot-none">—</span>`}</td>
+      <td>${col4}</td>
+      <td>🥕 ${m.count}</td>
+      <td class="money-c">${fmtMoney(m.total)}</td>
+      <td><button class="mini-btn accent">Details</button></td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="7" style="color:var(--muted)">No staff members yet.</td></tr>`;
+  $("sumFoot").innerHTML = lastSummary.length ? `<tr><td>Total</td><td>${nCalls}</td><td></td><td></td><td>🥕 ${count}</td><td class="money-c">${fmtMoney(total)}</td><td></td></tr>` : "";
+  $("sTotal").textContent = fmtMoney(total);
+  $("sCount").textContent = count;
+  $("sPaid").textContent = `${paid} of ${staff.length}`;
+  if (detailId != null) renderDetail();
+}
+
+function openDetail(id){
+  detailId = id;
+  renderSummary();
+  $("detailCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+function closeDetail(){
+  detailId = null;
+  $("detailCard").hidden = true;
+  document.querySelectorAll("#sumBody tr.sel").forEach(r => r.classList.remove("sel"));
+}
+function renderDetail(){
+  const row = lastSummary.find(r => r.s.id === detailId);
+  if (!row){ closeDetail(); return; }
+  const { s, m } = row, perCall = carrotCfg.basis === "call";
+  const head = `
+    <div class="dc-head">
+      ${whoCell(s)}
+      <span class="meta">${rangeLabel()}</span>
+      <span class="mode">${perCall ? "Per call" : "Monthly"}</span>
+      <button class="x-btn" title="Close details" onclick="closeDetail()">&times;</button>
+    </div>`;
+  const stats = `
+    <div class="dc-stats">
+      <div class="dc-stat"><b>${m.n}</b><span>calls</span></div>
+      <div class="dc-stat"><b>${m.avgCall != null ? m.avgCall.toFixed(1) : "—"}</b><span>avg call score</span></div>
+      <div class="dc-stat"><b>🥕 ${m.count}</b><span>carrots</span></div>
+      <div class="dc-stat"><b class="money-c">${fmtMoney(m.total)}</b><span>earned</span></div>
+    </div>`;
+  let body;
+  if (perCall){
+    if (!m.items.length) body = `<span class="carrot-none">No calls in this period.</span>`;
+    else {
+      const bk = tierBreakdown(m.items);
+      const max = Math.max(1, ...bk.rows.map(r => r.n), bk.none);
+      body = `<div class="dc-cols">
+        <div>
+          <div class="dc-sub">By score range</div>
+          <table class="tb">
+            <thead><tr><th>Score range</th><th>Calls</th><th></th><th>Each</th><th>Subtotal</th></tr></thead>
+            <tbody>
+              ${bk.rows.map(r => `<tr><td>${r.t.from} – ${r.t.to}</td><td>${r.n}</td><td><span class="bar"><i style="width:${r.n / max * 100}%"></i></span></td><td>${fmtMoney(r.t.amount)}</td><td class="money-c">${fmtMoney(r.n * r.t.amount)}</td></tr>`).join("")}
+              ${bk.none ? `<tr class="none"><td>No carrot</td><td>${bk.none}</td><td><span class="bar"><i style="width:${bk.none / max * 100}%;background:#c3cbde"></i></span></td><td>${fmtMoney(0)}</td><td>${fmtMoney(0)}</td></tr>` : ""}
+            </tbody>
+            <tfoot><tr><td>Total</td><td>${m.n}</td><td></td><td></td><td class="money-c">${fmtMoney(m.total)}</td></tr></tfoot>
+          </table>
+        </div>
+        <div>
+          <div class="dc-sub">Calls (${m.n})</div>
+          <div class="dc-calls"><table>
+            <thead><tr><th>Date</th><th>Duration</th><th>Score</th><th>Carrot</th></tr></thead>
+            <tbody>${m.items.map(it => `<tr>
+              <td>${it.label}</td><td>${it.call.duration}</td>
+              <td><span class="score-pill ${pillClass(it.score)}" style="padding:2px 9px;font-size:.78rem">${it.score.toFixed(1)}</span></td>
+              <td class="${it.amount > 0 ? "money-c" : "carrot-none"}">${fmtMoney(it.amount)}</td></tr>`).join("")}</tbody>
+          </table></div>
+        </div>
+      </div>`;
+    }
+  } else {
+    body = m.items.length ? `<div class="months">${m.items.map(it => {
+      const crit = staffCriteria(s.id, it.mk);
+      const ov = overrides[`${s.id}|${it.mk}`] || {};
+      return `<div class="mcard">
+        <div class="top"><span>${it.label}</span><span class="score-pill ${pillClass(it.score)}">${it.score.toFixed(1)}</span></div>
+        <div class="crit">${CRITERIA.map(([k, l]) => `
+          <span class="${ov[k] != null ? "adj" : ""}">${l}${ov[k] != null ? " ✎" : ""}</span>
+          <span class="track"><i style="width:${crit[k] * 10}%"></i></span>
+          <span>${crit[k].toFixed(1)}</span>`).join("")}</div>
+        <div class="bot"><span>Carrot this month</span><span class="${it.amount > 0 ? "money-c" : "carrot-none"}">${fmtMoney(it.amount)}</span></div>
+      </div>`;
+    }).join("")}</div>
+    ${m.items.some(it => overrides[`${s.id}|${it.mk}`]) ? `<p class="help" style="margin:10px 0 0">✎ = adjusted by a manager in Staff scores.</p>` : ""}`
+    : `<span class="carrot-none">No staff score in these months.</span>`;
+  }
+  $("detailCard").innerHTML = head + `<div class="dc-body">${stats}${body}</div>`;
+  $("detailCard").hidden = false;
+}
+
+function exportSummary(){
+  if (!lastSummary.length){ toast("Nothing to export for this period."); return; }
+  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const rows = [["Staff member", "Branch", "Calls", "Avg call score", "Carrots", `Earned (${carrotCfg.currency})`]];
+  lastSummary.forEach(({ s, m }) => rows.push([s.name, s.branch, m.n, m.avgCall != null ? m.avgCall.toFixed(1) : "", m.count, m.total]));
+  const csv = rows.map(r => r.map(q).join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = `carrot-summary_${getRange().from}_to_${getRange().to}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+function addStaff(){
+  const name = $("newStaffName").value.trim();
+  const branch = $("newStaffBranch").value;
+  const ext = $("newStaffExt").value.trim() || "—";
+  if (!name){ toast("Enter the staff member's name first."); return; }
+  const colors = ["#2f6fed","#1eab63","#7b3ff2","#e8930c","#e23c3c","#0aa5a5"];
+  staff.push({ id: Date.now(), name, branch, ext, color: colors[staff.length % colors.length] });
+  $("newStaffName").value = ""; $("newStaffExt").value = "";
+  renderStaffList(); renderStaffFilter(); renderTable();
+  toast(`${name} added to staff.`);
+}
+
+/* ================= ASSIGN MODAL ================= */
+function openAssignModal(callId){
+  assigningCallId = callId;
+  const c = calls.find(x => x.id === callId);
+  $("assignInfo").textContent = `Call from ${c.caller} · ${c.time} · ${c.branch}`;
+  $("assignSelect").innerHTML = staff.map(s =>
+    `<option value="${s.id}">${esc(s.name)} — ${s.branch}</option>`).join("");
+  $("assignOverlay").classList.add("open");
+}
+function closeAssignModal(){ $("assignOverlay").classList.remove("open"); assigningCallId = null; }
+function saveAssign(){
+  const c = calls.find(x => x.id === assigningCallId);
+  const s = staffById(Number($("assignSelect").value));
+  if (c && s){ c.staffId = s.id; toast(`Call assigned to ${s.name}.`); }
+  closeAssignModal(); renderTable();
+}
+
+/* overlay click-to-close */
+document.querySelectorAll(".overlay").forEach(o =>
+  o.addEventListener("click", e => {
+    if (e.target !== o) return;
+    o.id === "staffOverlay" ? closeStaffModal() : o.classList.remove("open");
+  }));
+
+/* init */
+renderStaffFilter();
+renderStats();
+renderTable();
+</script>
+</body>
+</html>
